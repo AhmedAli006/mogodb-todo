@@ -1,23 +1,68 @@
-import logo from './logo.svg';
+
 import './App.css';
+import axios from 'axios';
+import { useState } from 'react';
 
 function App() {
+
+  const [todolist, settodo] = useState([])
+  const [list, setlist] = useState('')
+  const [loader, setLoader] = useState(false)
+
+
+
+  const apiHandle = axios.create({
+    baseURL: "http://localhost:5000"
+  })
+
+  const getData = () => {
+    apiHandle
+      .get("/lists")
+      .then((res) => {
+        console.log(res.data)
+        settodo([...res.data])
+
+        console.log(todolist);
+        setLoader(true)
+      })
+  }
+
+  const postData = () => {
+
+    apiHandle
+      .post("/lists", { todo: list })
+      .then((res) => {
+        console.log(res.data.todo)
+      })
+  }
+  const delData = () => {
+    apiHandle
+      .delete("/lists/:id")
+      .then((res) => {
+      })
+  }
   return (
+    loader?<><p>loaging</p></>:
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>
+        <h1>todo  App</h1>
+        <input onChange={(e) => setlist(e.target.value)} />
+        <button onClick={getData}>get</button>
+        <button onClick={postData}>post</button>
+        {todolist.length > 0 ? todolist.map((e, i) => {
+          return (
+            <div key={i}>
+
+              <p >{e.todo}</p>
+              <button onClick={delData}>delete</button>
+
+             
+            </div>
+
+          )
+        }) : ''}
+
+      </div>
     </div>
   );
 }
